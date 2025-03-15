@@ -1,3 +1,6 @@
+
+
+import Dashboard from "./components/Dashboard"
 import React from "react";
 import Navbar from "./components/navbar";
 import HeroSection from "./components/HeroSection";
@@ -10,20 +13,28 @@ import SignIn from "./components/signin";
 
 const App = () => {
   return (
+    <>
     <div>
-      <Navbar />
-      <HeroSection />
-      <Solutions />
-      <Nutrition />
-      <WhyUseSuvidhaShare />
-      <div>
-        <Gallery />
-      </div>
-      <div>
-        <ClientTestimonials />
-      </div>
+      <Dashboard/>
     </div>
-  );
-};
+     <div>
+     <Navbar />
+      </div>
+     <HeroSection />
+     <Solutions />
+     <Nutrition />
+     <WhyUseSuvidhaShare />
+    <div>
+      <Gallery/>
+    </div>
+    <div>
+      <ClientTestimonials />
+    </div>
+
+    </>
+  )
+}
+     
+
 
 export default App;
