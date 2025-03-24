@@ -57,7 +57,6 @@ const signupUser = asyncHandler(async (req, res) => {
             "Something went wrong while creating the user. Please try again."
         );
     }
-
     // return response
     return res
         .status(201)

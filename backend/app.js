@@ -19,16 +19,16 @@ app.use(
 );
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({  extended: true }));
 app.use(express.static("./public"));
 app.use(cookieParser());
 
 // routes import
 // import dashboardRouter from "./routes/dashboard.routes.js"
-import userRouter from "./routes/user.routes.js"
+import userRouter from "./routes/user.routes.js";
 
 // routes handling
 // app.use("/api/v1/dashboard", dashboardRouter)
-app.use("/api/v1/user", userRouter)
+app.use("/api/v1/user", userRouter);
 
 export { app };

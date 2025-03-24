@@ -24,7 +24,9 @@ const App = () => {
       {" "}
       {/* Wrapping the app with Router to enable routing */}
       {/* Navbar will be available on all pages */}
-      <Routes> {/* Only one Route will be rendered at a time */}
+      <Routes>
+        {" "}
+        {/* Only one Route will be rendered at a time */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
@@ -41,7 +43,7 @@ const App = () => {
               <WhyUseSuvidhaShare />
               <Gallery />
               <ClientTestimonials />
-              <ContactUs/>
+              <ContactUs />
             </>
           }
         />
