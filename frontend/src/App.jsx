@@ -17,7 +17,7 @@ import ContactUs from "./components/contactUs";
 import AboutUs from "./pages/AboutUs";
 import SignIn from "./components/signin";
 import SignUp from "./components/SignUp";
-import AddFood from "./components/AddFoodList";
+import AddFood from "./pages/AddFood.jsx";
 
 const App = () => {
   return (
@@ -36,8 +36,7 @@ const App = () => {
           element={
             <>
               <Navbar />
-              <HeroSection />
-              <AddFood/>
+               <HeroSection />
               <Solutions />
               <Nutrition />
               <WhyUseSuvidhaShare />
