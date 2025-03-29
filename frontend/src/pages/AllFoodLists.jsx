@@ -1,40 +1,47 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Search, FileQuestion, User, LogOut, Settings, Truck, ClipboardList, Gift, ScrollText, LayoutDashboard, Store, MapPinHouse, MessageCircleMore } from 'lucide-react';
 import Logo from '../assets/suvidhasharelogo.png';
 
-const data = [
-  { name: 'Aalu matar', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Palak Paneer', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Vegetable Biryani', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Baingan Bharta', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Chole Bhature', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Dal Makhani', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Mushroom Masala', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Bhindi Masala', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Paneer Butter Masala', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Mixed Vegetable Curry', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Malai Kofta', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Rajma Masala', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Methi Chaman', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Gobi Manchurian', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Kadai Paneer', restaurant: 'XYZ Resturant', available: true },
-  { name: 'Vegetable Jalfrezi', restaurant: 'XYZ Resturant', available: true },
-];
-
-
-const fooddata = data.map((datas) =>   
-   <div className="bg-green-900 text-white p-6 rounded-lg flex items-center gap-4" index={datas.index}>
-      <Truck/>
-      <div>
-        <h3 className="text-2xl">{datas.name}</h3>
-        <p className="text-lg">{datas.restaurant}</p>
-        <p>{datas.available}</p>
-      </div>
-    </div>
-);
-
-
 export default function AllFoodLists() {
+    const [foodData, setFoodData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('/user/allfoodlists');
+                setFoodData(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError(err);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []); 
+
+    if (loading) {
+        return <div>Loading...</div>; 
+    }
+
+    if (error) {
+        return <div>Error: {error.message}</div>; 
+    }
+
+    const foodItems = foodData.map((item, index) => (
+        <div className="bg-green-900 text-white p-6 rounded-lg flex items-center gap-4"
+            key={index} >
+            <Truck />
+            <div>
+                <h3 className="text-2xl">{item.name}</h3>
+                <p className="text-lg">{item.restaurant}</p>
+                <p>{item.available ? 'Available' : 'Not Available'}</p>
+            </div>
+        </div>
+    ));
+
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -55,7 +62,6 @@ export default function AllFoodLists() {
         </ul>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-5xl font-bold text-green-900">All Food Lists</h2>
@@ -67,11 +73,11 @@ export default function AllFoodLists() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 mt-6"> {fooddata} </div>
+        <div className="grid grid-cols-3 gap-6 mt-6"> {foodItems} </div>
 
        </div>
 
-      {/* Right Panel */}
+
       <div className="w-1/5 bg-green-900 text-white p-4 flex flex-col items-center">
         <User size={48} className="mb-4" />
         <p className="text-lg font-bold">Sanju@gmail.com</p>
