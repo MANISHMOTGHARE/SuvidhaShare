@@ -26,9 +26,12 @@ app.use(cookieParser());
 // routes import
 // import dashboardRouter from "./routes/dashboard.routes.js"
 import userRouter from "./routes/user.routes.js"
+import foodRouter from "./routes/food.routes.js";
 
 // routes handling
 // app.use("/api/v1/dashboard", dashboardRouter)
-app.use("/api/v1/user", userRouter)
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/food", foodRouter); // Add food route
+
 
 export { app };

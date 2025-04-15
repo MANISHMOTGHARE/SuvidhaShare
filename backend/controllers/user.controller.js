@@ -102,6 +102,22 @@ const updateAvatarImage = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "Avatar image updated successfully"));
 })
 
+const getAvatarImage = asyncHandler(async (req, res) => {
+    try {
+        const username = req.params.username;
+        const user = await User.findOne({username}).select("avatar");
+        if (user && user.avatar && user.avatar.data) {
+          res.set("Content-Type", user.avatar.contentType || "image/jpeg");
+          return res
+                .status(200)
+                .json(new ApiResponse(200, user.avatar.data, "Avatar image fetched successfully"));
+        }
+        return res.status(404).json({ error: "Avatar image not found." });
+      } catch (error) {
+        return res.status(500).json({ error: "Error fetching avatar image." });
+      }
+})
+
 // generate access token and refresh token
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -339,6 +355,7 @@ const deleteUserAccount = asyncHandler(async (req, res) => {
 export {
     signupUser,
     updateAvatarImage,
+    getAvatarImage,
     loginUser,
     logoutUser,
     refreshAccessToken,

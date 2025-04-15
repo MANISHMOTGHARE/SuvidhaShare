@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     signupUser,
     updateAvatarImage,
+    getAvatarImage,
     loginUser,
     logoutUser,
     refreshAccessToken,
@@ -19,6 +20,7 @@ const router = Router();
 router.route("/signup").post(signupUser);
 router.route("/login").post(loginUser);
 router.route("/u/:username").get(getUser);
+router.route("/avatar/:username").get(getAvatarImage);
 
 // secured routes
 router.route("/logout").post(verifyJWT, logoutUser);

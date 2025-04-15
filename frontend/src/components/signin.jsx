@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import Signlogo from "../assets/suvidhasharelogo.png";
 import Food from "../assets/food.png";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -17,106 +16,110 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Call login API
     try {
-      const response = await axios.post('/user/login', {
+      const response = await axios.post("/user/login", {
         email: email,
-        password: password
+        password: password,
       });
 
+
       if (response.status === 200) {
+        const role  = response.data.data.user.role; 
+        localStorage.setItem("user", response.data);
+        console.log(role)
 
-        localStorage.setItem('user', response.data.user);
-
-        navigate('/dashboard');
-      } else {
+        //Redirect user to dashboard
+        
+          navigate('/dashboard')
+      } 
+      else {
         console.error("Login failed:", response.data.message);
         alert(response.data.message);
       }
     } catch (error) {
       console.error("Login error:", error);
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
-      } else {
-        alert("An error occurred during login.");
-      }
+      alert(error.response?.data?.message || "An error occurred during login.");
     }
   };
 
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100"
-     style={{
-             backgroundImage: `url("${Food}")`,
-           }}
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center p-4"
+      style={{ backgroundImage: `url(${Food})` }}
     >
-      <div className="bg-white rounded-2xl shadow-2xl flex w-3/3 max-w-4xl">
-        <div className="w-4/5 flex flex-col items-center justify-center">
-          <h1 className="text-5xl font-bold mt-2 text-left">Welcome To</h1>
-          <img
-            src={Signlogo}
-            alt="Logo"
-            className='w-100 h-50'
-          />
+      <div className="bg-white rounded-2xl shadow-lg flex flex-col md:flex-row w-full max-w-4xl">
+        {/* Left Section */}
+        <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 text-center">
+          <h1 className="text-4xl font-bold">Welcome To</h1>
+          <img src={Signlogo} alt="Logo" className="max-w-xs mt-2" />
         </div>
 
-        <div className="w-4/5 py-10 px-8">
-          <h2 className="text-5xl font-bold mb-6">Sign In</h2>
-          <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Right Section (Form) */}
+        <div className="w-full md:w-1/2 p-8">
+          <h2 className="text-3xl font-bold text-center mb-6">Sign In</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-2xl font-medium text-gray-700 mb-4">Email</label>
+              <label className="block text-lg font-medium text-gray-700">
+                Email
+              </label>
               <input
-                className="shadow appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="email"
-                type="text"
-                placeholder="email"
+                className="shadow-sm border rounded w-full py-2 px-3 text-gray-700 focus:ring focus:ring-indigo-300"
+                type="email"
+                placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
+
             <div>
-              <label className="block text-2xl font-medium text-gray-700 mb-4">Password</label>
+              <label className="block text-lg font-medium text-gray-700">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="shadow appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow-sm border rounded w-full py-2 px-3 text-gray-700 focus:ring focus:ring-indigo-300"
                   value={password}
-                  placeholder="Password"
+                  placeholder="Enter password"
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500"
+                  className="absolute inset-y-0 right-3 text-gray-500"
                   onClick={toggleShowPassword}
                 >
                   {showPassword ? "HIDE" : "SHOW"}
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-between">
+
+            <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox h-4 w-4 text-indigo-600" 
-                     />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                <input type="checkbox" className="form-checkbox text-indigo-600" />
+                <span className="ml-2 text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-indigo-600 hover:text-indigo-500">
-                Forget Password
+              <a href="#" className="text-indigo-600 hover:underline">
+                Forgot Password?
               </a>
             </div>
-            <div>
-              <button type="submit" 
-              className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 rounded-md text-white font-semibold" 
-              >
-                Sign In
-              </button>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <a href="/SignUp" className="text-indigo-600 hover:text-indigo-500">
-                  Sign Up
-                </a>
-              </p>
-            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold transition"
+            >
+              Sign In
+            </button>
+
+            <p className="text-center text-sm text-gray-600">
+              Don't have an account?{" "}
+              <a href="/SignUp" className="text-indigo-600 hover:underline cursor-pointer">
+                Sign Up
+              </a>
+            </p>
           </form>
         </div>
       </div>
