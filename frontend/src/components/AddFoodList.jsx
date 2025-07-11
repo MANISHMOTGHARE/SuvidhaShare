@@ -1,87 +1,98 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const AddFood = () => {
+  const { user } = useAuth();
   const [addFood, setAddfood] = useState({
     title: "",
     description: "",
     quantity: "", 
     pickupTime: "",
-    timePeriod: "AM",
     location: "",
-    });
+    price: 0,
+    category: "other",
+    foodType: "veg"
+  });
 
-    const [success, setSuccess] = useState("");
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const handleChange = (e) => {
-      setAddfood({ ...addFood, [e.target.name]: e.target.value });
-    };
+  const handleChange = (e) => {
+    setAddfood({ ...addFood, [e.target.name]: e.target.value });
+  };
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      const token = localStorage.getItem('user');
-     try {
-          const response = await axios.post('http://localhost:5000/api/v1/food/add', addFood, 
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log(response);
-          setSuccess("Food added successfully!");
-          setError("");
-          setAddfood({ title: "",
-            description: "",
-            quantity: "", 
-            pickupTime: "",
-            location: "", });
-
-          setTimeout(() => {
-              navigate('/dashboard');
-            }, 1500);
-
-        } catch (err) {
-          console.error(err);
-          setError(err.response?.data?.error || "Something went wrong!");
-          setSuccess("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('accessToken');
+    
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/v1/food/add', 
+        addFood,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true
         }
-      };
+      );
+      
+      setSuccess("Food added successfully!");
+      setError("");
+      setAddfood({ 
+        title: "",
+        description: "",
+        quantity: "", 
+        pickupTime: "",
+        location: "",
+        price: 0,
+        category: "other",
+        foodType: "veg"
+      });
 
-      useEffect(() => {
-        if (success || error) {
-          const timer = setTimeout(() => {
-            setSuccess("");
-            setError("");
-          }, 3000);
-          return () => clearTimeout(timer);
-        }
-      }, [success, error]);
-  
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Something went wrong!");
+      setSuccess("");
+    }
+  };
+
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess("");
+        setError("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error]);
 
   return (
-    <>
-  
-  <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="min-h-screen flex items-center justify-center bg-blue-50 p-6">
         <div className="bg-green-800 p-10 rounded-2xl shadow-xl w-full max-w-3xl">
-          <h2 className="text-4xl font-bold text-center text-black mb-8">ADD FOOD</h2>
-          {success && <div className="text-green-500 text-4xl font-bold mb-4">{success}</div>}
-          {error && <div className="text-red-500 text-4xl font-bold mb-4">{error}</div>}
-          <div className="space-y-4">
+          <h2 className="text-4xl font-bold text-center text-white mb-8">ADD FOOD</h2>
+          
+          {success && <div className="text-green-300 text-xl font-bold mb-4 text-center">{success}</div>}
+          {error && <div className="text-red-300 text-xl font-bold mb-4 text-center">{error}</div>}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Food Name */}
-            <div>
-              <label className="block text-black font-semibold mb-1 text-lg">Food Name</label>
+            <div className="md:col-span-2">
+              <label className="block text-white font-semibold mb-1 text-lg">Food Name</label>
               <input
                 type="text"
                 name="title"
                 placeholder="Enter food name"
-                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-green-500 text-lg"
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg"
                 value={addFood.title}
                 onChange={handleChange}
                 required
@@ -89,13 +100,13 @@ const AddFood = () => {
             </div>
 
             {/* Description */}
-            <div>
-              <label className="block text-black font-semibold mb-1 text-lg">Description</label>
+            <div className="md:col-span-2">
+              <label className="block text-white font-semibold mb-1 text-lg">Description</label>
               <textarea
-                rows="4"
-                 name="description"
+                rows="3"
+                name="description"
                 placeholder="Enter food description..."
-                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-green-500 text-lg resize-none"
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg resize-none"
                 value={addFood.description}
                 onChange={handleChange}
                 required
@@ -104,51 +115,83 @@ const AddFood = () => {
 
             {/* Quantity */}
             <div>
-              <label className="block text-black font-semibold mb-1 text-lg">Quantity</label>
+              <label className="block text-white font-semibold mb-1 text-lg">Quantity</label>
               <input 
                 type="number" 
                 name="quantity"
                 placeholder="Enter quantity" 
-                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-green-500 text-lg" 
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg" 
                 value={addFood.quantity}
                 onChange={handleChange}
                 required
               />
             </div>
 
+            {/* Price */}
+            <div>
+              <label className="block text-white font-semibold mb-1 text-lg">Price (₹)</label>
+              <input 
+                type="number" 
+                name="price"
+                placeholder="0 for free" 
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg" 
+                value={addFood.price}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-white font-semibold mb-1 text-lg">Category</label>
+              <select 
+                name="category"
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg"
+                value={addFood.category}
+                onChange={handleChange}
+              >
+                <option value="meal">Cooked Meal</option>
+                <option value="grocery">Grocery</option>
+                <option value="bakery">Bakery Items</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Food Type */}
+            <div>
+              <label className="block text-white font-semibold mb-1 text-lg">Food Type</label>
+              <select 
+                name="foodType"
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg"
+                value={addFood.foodType}
+                onChange={handleChange}
+              >
+                <option value="veg">Vegetarian</option>
+                <option value="non-veg">Non-Vegetarian</option>
+                <option value="vegan">Vegan</option>
+              </select>
+            </div>
+
             {/* Pickup Time */}
             <div>
-              <label className="block text-black font-semibold mb-1 text-lg">Pick-Up Time</label>
-              <div className="flex">
-                <input 
-                  type="time" 
-                   name="pickupTime"
-                  className="w-full p-3 rounded-l-xl bg-gray-200 border-none focus:ring-2 focus:ring-green-500 text-lg" 
-                  value={addFood.pickupTime}
-                  onChange={handleChange}
-                  required
-                />
-                <select 
-                  className="p-3 rounded-r-xl bg-gray-200 border-none focus:ring-2 focus:ring-green-500 text-lg" 
-                  name="timePeriod"
-                  value={addFood.timePeriod}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="AM">AM</option>
-                  <option value="PM">PM</option>
-                </select>
-              </div>
+              <label className="block text-white font-semibold mb-1 text-lg">Pick-Up Time</label>
+              <input 
+                type="time" 
+                name="pickupTime"
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg" 
+                value={addFood.pickupTime}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             {/* Location */}
             <div>
-              <label className="block text-black font-semibold mb-1 text-lg">Location</label>
+              <label className="block text-white font-semibold mb-1 text-lg">Location</label>
               <input
                 type="text"
                 name="location"
                 placeholder="Enter pickup location"
-                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-green-500 text-lg"
+                className="w-full p-3 rounded-xl bg-gray-200 border-none focus:ring-2 focus:ring-yellow-500 text-lg"
                 value={addFood.location}
                 onChange={handleChange}
                 required              
@@ -158,14 +201,16 @@ const AddFood = () => {
 
           {/* Submit Button */}
           <div className="mt-8 flex justify-center">
-            <button className="bg-yellow-500 text-black font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-600 transition duration-300 cursor-pointer">
+            <button 
+              type="submit"
+              className="bg-yellow-500 text-black font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-600 transition duration-300 cursor-pointer"
+            >
               ADD FOOD
             </button>
           </div>
         </div>
       </div>
-      </form>
-    </>
+    </form>
   );
 };
 

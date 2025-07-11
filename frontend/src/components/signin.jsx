@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import Signlogo from "../assets/suvidhasharelogo.png";
 import Food from "../assets/food.png";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -16,31 +18,18 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // Call login API
     try {
-      const response = await axios.post("/user/login", {
-        email: email,
-        password: password,
-      });
-
-
-      if (response.status === 200) {
-        const role  = response.data.data.user.role; 
-        localStorage.setItem("user", response.data);
-        console.log(role)
-
-        //Redirect user to dashboard
-        
-          navigate('/dashboard')
-      } 
-      else {
-        console.error("Login failed:", response.data.message);
-        alert(response.data.message);
+      const result = await login({ email, password });
+      
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setError(result.error);
       }
     } catch (error) {
-      console.error("Login error:", error);
-      alert(error.response?.data?.message || "An error occurred during login.");
+      setError("An error occurred during login.");
     }
   };
 
@@ -59,6 +48,13 @@ const SignIn = () => {
         {/* Right Section (Form) */}
         <div className="w-full md:w-1/2 p-8">
           <h2 className="text-3xl font-bold text-center mb-6">Sign In</h2>
+          
+          {error && (
+            <div className="bg-red-100 text-red-700 p-2 rounded mb-4 text-center">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-lg font-medium text-gray-700">
@@ -116,7 +112,7 @@ const SignIn = () => {
 
             <p className="text-center text-sm text-gray-600">
               Don't have an account?{" "}
-              <a href="/SignUp" className="text-indigo-600 hover:underline cursor-pointer">
+              <a href="/signup" className="text-indigo-600 hover:underline cursor-pointer">
                 Sign Up
               </a>
             </p>

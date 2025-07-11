@@ -21,6 +21,12 @@ const userSchema = new Schema(
             lowercase: true,
             trim: true,
         },
+        // Add this field in userSchema:
+        phone: {
+            type: String,
+            required: [true, "Phone number is required"],
+            trim: true
+        },
         fullname: {
             type: String,
             required: [true, "Name is required"],
