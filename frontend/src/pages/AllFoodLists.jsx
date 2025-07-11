@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Search, Truck } from "lucide-react";
 import axios from "axios";
@@ -56,12 +55,13 @@ export default function AllFoodLists() {
                 placeholder="Search Food"
                 className="pl-8 pr-4 py-1 border rounded-md"
               />
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2" size={16} />
+              <Search
+                className="absolute left-2 top-1/2 transform -translate-y-1/2"
+                size={16}
+              />
             </div>
-
-
-        </div>
-
+          </div>
+        </div> {/* ✅ ← Added this closing tag */}
 
         {loading ? (
           <p className="text-gray-700 text-xl">Loading food data...</p>
