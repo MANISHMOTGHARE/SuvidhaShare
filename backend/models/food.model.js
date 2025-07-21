@@ -1,3 +1,4 @@
+// src/models/food.model.js
 import mongoose from "mongoose";
 
 const foodSchema = new mongoose.Schema(
@@ -6,7 +7,7 @@ const foodSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true
-        }, 
+        },
         description: {
             type: String,
             required: true,
@@ -27,10 +28,9 @@ const foodSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
-        // NEW FIELDS:
         price: {
             type: Number,
-            default: 0  // 0 means free
+            default: 0 // 0 means free
         },
         category: {
             type: String,
@@ -55,6 +55,11 @@ const foodSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true
+        },
+        // --- ADDED THIS ---
+        image: {
+            data: Buffer,
+            contentType: String
         }
     },
     { timestamps: true }
