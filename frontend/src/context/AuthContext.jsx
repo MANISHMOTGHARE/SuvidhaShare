@@ -1,22 +1,41 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
 
+// Create one central axios instance
+const api = axios.create({
+  baseURL: "http://localhost:5000/api/v1", // Base URL for the entire API
+  withCredentials: true, // This is crucial for sending cookies
+});
+
 export const AuthProvider = ({ children }) => {
-  const [userRole, setUserRole] = useState(localStorage.getItem("role") || "");
-  const [userName, setUserName] = useState(localStorage.getItem("username") || "");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // To check auth status on page load
 
-  // Axios instance
-  const api = axios.create({
-    baseURL: "http://localhost:5000/api/v1/user", // ✅ Update if backend running elsewhere
-    withCredentials: true, // ✅ Send cookies like access/refresh token
-  });
+  useEffect(() => {
+    // This function checks if a user is already logged in (e.g., from a previous session)
+    const checkAuthStatus = async () => {
+      try {
+        // The browser automatically sends the cookie
+        const res = await api.get("/users/current-user");
+        if (res.data.success) {
+          setUser(res.data.data);
+        }
+      } catch (error) {
+        // No user is logged in
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Signup function
+    checkAuthStatus();
+  }, []);
+
   const signup = async (formData) => {
     try {
-      const res = await api.post("/signup", formData);
+      const res = await api.post("/users/signup", formData);
       return {
         success: true,
         message: res.data?.message || "Signup successful",
@@ -29,19 +48,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login function
   const login = async ({ email, password }) => {
     try {
-      const res = await api.post("/login", { email, password });
-
-      const { user } = res.data?.data || {};
-      if (user) {
-        setUserRole(user.role);
-        setUserName(user.username);
-        localStorage.setItem("role", user.role);
-        localStorage.setItem("username", user.username);
+      const res = await api.post("/users/login", { email, password });
+      if (res.data.success) {
+        setUser(res.data.data.user); // Set the user state with the returned user object
       }
-
       return {
         success: true,
         message: res.data?.message || "Login successful",
@@ -54,9 +66,28 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const logout = async () => {
+    try {
+      await api.post("/users/logout");
+      setUser(null); // Clear the user from state
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
+  const value = {
+    user,
+    loading,
+    signup,
+    login,
+    logout,
+    api, // Expose the api instance if needed in other components
+  };
+
+  // We show a loading screen or nothing until the initial auth check is complete
   return (
-    <AuthContext.Provider value={{ userRole, userName, setUserRole, setUserName, signup, login }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

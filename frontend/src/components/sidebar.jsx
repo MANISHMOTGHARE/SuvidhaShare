@@ -1,30 +1,47 @@
-import { Search, User, LogOut, Settings, LayoutDashboard, FileQuestion,  Truck, ClipboardList, Gift } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { LayoutDashboard, User, History, HelpCircle, Settings, LogOut } from 'lucide-react';
 import Logo from '../assets/suvidhasharelogo.png';
 
-
-
 const Sidebar = () => {
-  const { userRole, userName } = useAuth();
-  console.log(userRole)
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/signin');
+  };
 
   return (
-    <div>
-      {/* Sidebar */}
-      <div className="h-full bg-green-900 text-white p-4">
-        <h1 className="text-xl font-bold mb-6 flex items-center gap-2">
-        <img src={Logo} alt="User Profile" className="mt-4 w-58 h-25 bg-white" />
-        </h1>
-        <ul className="space-y-4">
-        <li className="flex cursor-pointer gap-4"> <LayoutDashboard /> Dashboard</li>
-        <li className="flex cursor-pointer gap-4"> <User /> User Profile</li>
-        <li className="flex cursor-pointer gap-4"> <Truck /> Food History</li>
-        <li className="flex cursor-pointer gap-4"><FileQuestion /> Help & Center</li>
-        <li className="cursor-pointer flex gap-2 mt-[300px]"><Settings /> Settings</li>
-        <li className="cursor-pointer flex gap-2 mt-2"><LogOut /> Logout</li>
-        </ul>
+    <div className="h-screen bg-green-900 text-white p-4 flex flex-col">
+      <div className="mb-6">
+        <img src={Logo} alt="SuvidhaShare Logo" className="w-48 bg-white p-2 rounded-md" />
+      </div>
+      <ul className="space-y-4 flex-grow">
+        {/* ✅ FIX: Links are now functional */}
+        <SidebarLink to="/dashboard" icon={<LayoutDashboard />} label="Dashboard" />
+        <SidebarLink to="/dashboard/profile" icon={<User />} label="User Profile" />
+        <SidebarLink to="/dashboard/history" icon={<History />} label="Food History" />
+        <SidebarLink to="/dashboard/help" icon={<HelpCircle />} label="Help & Center" />
+      </ul>
+      <div>
+         {/* ✅ FIX: Logout button now works */}
+        <SidebarLink to="/dashboard/settings" icon={<Settings />} label="Settings" />
+        <li onClick={handleLogout} className="flex items-center gap-4 p-2 rounded-md hover:bg-green-800 cursor-pointer">
+          <LogOut /> Logout
+        </li>
       </div>
     </div>
   );
 };
+
+// Helper component for cleaner code
+const SidebarLink = ({ to, icon, label }) => (
+  <li>
+    <Link to={to} className="flex items-center gap-4 p-2 rounded-md hover:bg-green-800">
+      {icon} {label}
+    </Link>
+  </li>
+);
+
 export default Sidebar;
