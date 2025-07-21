@@ -1,48 +1,36 @@
-
 import React, { useEffect, useState } from "react";
 import { Search, Truck } from "lucide-react";
 import axios from "axios";
+import FoodDetails from "./FoodDetails"; // Add this import
 
 export default function AllFoodLists() {
   const [foodData, setFoodData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [query, setQuery] = useState("");
+  const [selectedFood, setSelectedFood] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/v1/food/all");
-
-        console.log("✅ API Response:", response.data);
-
-        const foodsArray = response.data?.data?.foods || [];
-        setFoodData(foodsArray);
-      } catch (err) {
-        console.error("❌ Error fetching food:", err);
-        setError("Failed to fetch food data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [query]);
 
-  const foodItems = foodData.map((item, index) => (
-    <div
-      className="bg-green-900 text-white p-6 rounded-lg flex items-center gap-4"
-      key={index}
-    >
-      <Truck />
-      <div>
-        <h3 className="text-2xl">{item.title}</h3>
-        <p className="text-lg">{item.description}</p>
-        <p className="text-lg">Quantity: {item.quantity}</p>
-        <p className="text-lg">Location: {item.location}</p>
-        <p>Status: {item.status}</p>
-      </div>
-    </div>
-  ));
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const url = query
+        ? `http://localhost:5000/api/v1/food/all?search=${query}`
+        : `http://localhost:5000/api/v1/food/all`;
+      const response = await axios.get(url);
+      const foodsArray = response.data?.data?.foods || [];
+      setFoodData(foodsArray);
+    } catch (err) {
+      setError("Failed to fetch food data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQueryChange = (e) => setQuery(e.target.value);
 
   return (
     <div className="flex min-h-screen bg-gray-100">

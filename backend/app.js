@@ -1,3 +1,4 @@
+// src/app.js
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -13,7 +14,7 @@ app.get('/', (req, res) => {
 
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN,
+        origin: process.env.CORS_ORIGIN || 'http://localhost:3000', // Added a fallback
         credentials: true,
     })
 );
@@ -23,15 +24,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./public"));
 app.use(cookieParser());
 
-// routes import
-// import dashboardRouter from "./routes/dashboard.routes.js"
-import userRouter from "./routes/user.routes.js"
+// --- Routes Import ---
+import userRouter from "./routes/user.routes.js";
 import foodRouter from "./routes/food.routes.js";
+import adminRouter from "./routes/admin.routes.js"; // <<< IMPORT THE NEW ADMIN ROUTER
 
-// routes handling
-// app.use("/api/v1/dashboard", dashboardRouter)
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/food", foodRouter); // Add food route
-
+// --- Routes Handling ---
+app.use("/api/v1/users", userRouter); // Your original user route had /user, I'm suggesting /users for consistency
+app.use("/api/v1/food", foodRouter);
+app.use("/api/v1/admin", adminRouter); // <<< USE THE NEW ADMIN ROUTER
 
 export { app };
