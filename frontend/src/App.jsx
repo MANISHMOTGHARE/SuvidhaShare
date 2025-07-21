@@ -20,6 +20,7 @@ import SignIn from "./components/signin";
 import SignUp from "./components/SignUp";
 import AddFood from "./components/AddFoodList";
 import AllFoodLists from "./pages/AllFoodLists.jsx";
+import NearbyFoodLists from "./pages/NearbyFoodLists.jsx";
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/addfood" element={<AddFood/>}></Route>
+          <Route path="/nearby-food" element={<NearbyFoodLists />} />
           {/* Default Route (Home page) */}
           <Route
             path="/"

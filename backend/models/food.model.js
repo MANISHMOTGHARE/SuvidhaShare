@@ -23,10 +23,28 @@ const foodSchema = new mongoose.Schema(
             required: true,
             min: 1
         },
+        // GeoJSON location (longitude, latitude)
         location: {
-            type: String,
-            required: true,
-            trim: true
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: true,
+                default: 'Point'
+            },
+            coordinates: {
+                type: [Number],
+                required: true,
+                validate: {
+                    validator: function (v) {
+                        return v.length === 2;
+                    },
+                    message: 'Coordinates must be [longitude, latitude]'
+                }
+            },
+            address: {
+                type: String,
+                required: false
+            }
         },
         price: {
             type: Number,
