@@ -1,28 +1,45 @@
+// src/routes/food.routes.js
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { 
-    addFood, 
-    getUserFoods, 
-    getAllFoods, 
-    claimFood, 
-    deleteFood 
+import { upload } from "../middlewares/multer.middleware.js";
+import {
+    addFood,
+    getAllFoods,
+    getFoodById,
+    getUserFoods,
+    getMyClaimedFoods,
+    updateFood,
+    claimFood,
+    deleteFood,
+    getPlatformStats
 } from "../controllers/food.controller.js";
 
 const router = Router();
 
-// POST /api/v1/food/add - Add a new food donation
-router.route("/add").post(verifyJWT, addFood);
-
-// GET /api/v1/food/my-foods?page=1&limit=10 - Get paginated foods added by user
-router.route("/my-foods").get(verifyJWT, getUserFoods);
-
-// GET /api/v1/food/all?page=1&limit=10 - Get all available foods (PUBLIC - no auth needed!)
+// --- PUBLIC ROUTES ---
+// Get all available food listings (with filtering)
 router.route("/all").get(getAllFoods);
+// Get platform-wide statistics
+router.route("/stats").get(getPlatformStats);
 
-// PATCH /api/v1/food/claim/:foodId - Claim a food item
-router.route("/claim/:foodId").patch(verifyJWT, claimFood);
+// --- SECURED ROUTES (require login) ---
+router.use(verifyJWT); // Apply verifyJWT middleware to all routes below this line
 
-// DELETE /api/v1/food/:foodId - Delete a food item
-router.route("/:foodId").delete(verifyJWT, deleteFood);
+// CRUD for Food Listings
+router.route("/add").post(upload.single("foodImage"), addFood);
+router.route("/my-foods").get(getUserFoods); // Get listings created by the logged-in user
+
+// Dashboard route for individuals/volunteers to see what they've claimed
+router.route("/my-claims").get(getMyClaimedFoods);
+
+// Routes with a specific foodId
+// IMPORTANT: These must be last to avoid conflicts with routes like /stats or /my-claims
+router.route("/:foodId")
+    .get(getFoodById) // Get details of a single food item
+    .patch(upload.single("foodImage"), updateFood) // Update your own food listing
+    .delete(deleteFood); // Delete your own food listing
+
+// Action route
+router.route("/claim/:foodId").patch(claimFood); // Claim a food item
 
 export default router;
