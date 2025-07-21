@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, Truck } from "lucide-react";
 import axios from "axios";
-import FoodDetails from "./FoodDetails"; // Add this import
 
 export default function AllFoodLists() {
   const [foodData, setFoodData] = useState([]);

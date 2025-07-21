@@ -11,7 +11,8 @@ import {
     updateFood,
     claimFood,
     deleteFood,
-    getPlatformStats
+    getPlatformStats,
+    getNearbyFoods
 } from "../controllers/food.controller.js";
 
 const router = Router();
