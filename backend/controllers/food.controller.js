@@ -45,6 +45,7 @@ const addFood = asyncHandler(async (req, res) => {
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
         const geoRes = await axios.get(geoUrl);
+        console.log(geoRes.data)
         if (geoRes.data.status === 'OK') {
             const loc = geoRes.data.results[0].geometry.location;
             geoLocation = {
