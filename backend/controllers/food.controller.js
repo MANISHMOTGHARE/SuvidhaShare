@@ -5,15 +5,16 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Food } from "../models/food.model.js";
 import sharp from "sharp";
 import mongoose from "mongoose";
+import axios from "axios";
 
 // --- CREATE ---
 const addFood = asyncHandler(async (req, res) => {
-    const { title, description, pickupTime, quantity, location, price, category, foodType } = req.body;
+    const { title, description, pickupTime, quantity, latitude, longitude, address, price, category, foodType } = req.body;
 
-    if (!title || !description || !pickupTime || !quantity || !location) {
-        throw new ApiError(400, "All required fields must be provided");
+    if (!title || !description || !pickupTime || !quantity || (!latitude && !longitude && !address)) {
+        throw new ApiError(400, "All required fields must be provided, including location");
     }
-    
+
     // Handle the image upload
     let imageObj = {};
     if (req.file) {
@@ -30,8 +31,39 @@ const addFood = asyncHandler(async (req, res) => {
         };
     }
 
+    // If latitude/longitude not provided, geocode the address
+    let geoLocation = null;
+    let resolvedAddress = address;
+    if (latitude && longitude) {
+        geoLocation = {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+            address: address || ''
+        };
+    } else if (address) {
+        // Use Google Maps Geocoding API to get lat/lng
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+        const geoRes = await axios.get(geoUrl);
+        console.log(geoRes.data)
+        if (geoRes.data.status === 'OK') {
+            const loc = geoRes.data.results[0].geometry.location;
+            geoLocation = {
+                type: 'Point',
+                coordinates: [loc.lng, loc.lat],
+                address: geoRes.data.results[0].formatted_address
+            };
+            resolvedAddress = geoRes.data.results[0].formatted_address;
+        } else {
+            throw new ApiError(400, "Could not geocode address");
+        }
+    } else {
+        throw new ApiError(400, "Location information is required");
+    }
+
     const newFood = await Food.create({
-        title, description, pickupTime, quantity, location,
+        title, description, pickupTime, quantity,
+        location: geoLocation,
         price: price || 0,
         category: category || "other",
         foodType: foodType || "veg",
@@ -40,6 +72,50 @@ const addFood = asyncHandler(async (req, res) => {
     });
 
     return res.status(201).json(new ApiResponse(201, newFood, "Food listing created successfully"));
+});
+// Find nearby food items for volunteers
+const getNearbyFoods = asyncHandler(async (req, res) => {
+    const { latitude, longitude, maxDistance = 10000, page = 1, limit = 10 } = req.query;
+    if (!latitude || !longitude) {
+        throw new ApiError(400, "Latitude and longitude are required");
+    }
+    const skip = (page - 1) * limit;
+
+    // $geoNear aggregation for distance calculation
+    const pipeline = [
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                distanceField: "distance",
+                spherical: true,
+                maxDistance: parseInt(maxDistance),
+                query: { status: "available" }
+            }
+        },
+        { $sort: { distance: 1 } },
+        { $skip: skip },
+        { $limit: parseInt(limit) },
+        {
+            $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user"
+            }
+        },
+        { $unwind: "$user" },
+        { $project: { "image.data": 0 } }
+    ];
+
+    const foods = await Food.aggregate(pipeline);
+    // Count total available for pagination
+    const total = await Food.countDocuments({ status: "available" });
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json(new ApiResponse(200, {
+        foods,
+        pagination: { total, page, limit, totalPages }
+    }, "Nearby food listings fetched successfully"));
 });
 
 // --- READ ---
@@ -231,5 +307,6 @@ export {
     updateFood,
     claimFood,
     deleteFood,
-    getPlatformStats
+    getPlatformStats,
+    getNearbyFoods
 };

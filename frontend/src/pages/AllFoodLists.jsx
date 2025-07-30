@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+
 
 // A new, simple component to display each food item
 const FoodCard = ({ food }) => (

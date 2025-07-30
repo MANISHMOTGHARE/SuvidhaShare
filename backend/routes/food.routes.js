@@ -11,7 +11,8 @@ import {
     updateFood,
     claimFood,
     deleteFood,
-    getPlatformStats
+    getPlatformStats,
+    getNearbyFoods
 } from "../controllers/food.controller.js";
 
 const router = Router();
@@ -27,6 +28,9 @@ router.use(verifyJWT); // Apply verifyJWT middleware to all routes below this li
 
 // CRUD for Food Listings
 router.route("/add").post(upload.single("foodImage"), addFood);
+
+// Volunteer: Get nearby food listings (paginated, sorted by distance)
+router.route("/nearby").get(getNearbyFoods);
 router.route("/my-foods").get(getUserFoods); // Get listings created by the logged-in user
 
 // Dashboard route for individuals/volunteers to see what they've claimed
